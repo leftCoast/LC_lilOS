@@ -91,7 +91,7 @@ class homePanel : public panel {
 // Our base class for a little OS that switches "panels" for user interaction. These
 // panels can be thought of as virtual Arduino sketches. Meaning? Everything on them must
 // be able to "survive" being deleted when the user switches functions. You'll be able to
-//get more info in the "panel" files.
+// get more info in the "panel" files.
 class lilOS :  public idler {
 
 	public:
