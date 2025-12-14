@@ -1,6 +1,7 @@
 #ifndef lilOS_h
 #define lilOS_h
 
+//#include <filePath.h>
 #include <iconButton.h>
 #include <drawObj.h>
 #include <menuBar.h>
@@ -77,14 +78,16 @@ class panel :	public drawGroup,
 // Default home panel with panelID of HOME_PANEL_ID
 class homePanel : public panel {
 
-  public:
-          homePanel(void);
-  virtual ~homePanel(void);
+	public:
+				homePanel(void);
+	virtual	~homePanel(void);
   
-  virtual void  setup(void);
-  virtual void  loop(void);
-  virtual void  drawSelf(void);
-    
+	virtual	void  setup(void);
+	virtual	void  loop(void);
+	virtual	void  drawSelf(void);
+	virtual	char*	iconPath(int panelID);
+   
+   			char*	pathBuff;	// Workspace for building up file paths. 
 };
 
 
@@ -96,23 +99,21 @@ class lilOS :  public idler {
 
 	public:
 				lilOS(void);
-				lilOS(int homeID);
 	virtual	~lilOS(void);
 
-	virtual	bool		begin(void);					// The global world is online, do hookups. Returns success.
-	virtual	panel*	createPanel(int panelID);	// INHERIT THIS GUY AND CREATE YUR OWN CUSTOM PANELS.
-	virtual	void		launchPanel(void);			// Dispose of current and launch a newly created panel.
-	virtual	void		loop(void);						// Tell the current panel its loop time.
+	virtual	bool			begin(void);								// The global world is online, do hookups. Returns success.
+	virtual	panel*		createPanel(int panelID);				// INHERIT THIS GUY AND CREATE YUR OWN CUSTOM PANELS.
+	virtual	void			launchPanel(void);						// Dispose of current and launch a newly created panel.
+	virtual	void			loop(void);									// Tell the current panel its loop time.
+	virtual	const char*	stdIconPath(stdIcons theIcon);
+	virtual	const char*	getPanelFolder(int panelID);
+	virtual	const char*	getPanelIconPath(int panelID);
 	
 	// Calls to be overwritten by used version.
-	virtual	int			getPanelWidth(void) = 0;
-	virtual	int			getPanelHeight(void) = 0;
 	virtual	void			beep(void) = 0;
 	virtual	int			getTonePin(void) = 0;
-	virtual	void			setBrightness(byte brightness) = 0;
 	virtual	const char*	getSystemFolder() = 0;
-	virtual	const char*	getPanelFolder(int panelID) = 0;
-	virtual	const char*	stdIconPath(stdIcons theIcon);
+	virtual	const char* getPanelName(int panelID) = 0;
 	
 				char*		pathBuff;			// Workspace for building up file paths.
 				panel*	mPanel;
@@ -123,7 +124,5 @@ class lilOS :  public idler {
 extern int		nextPanel;
 extern lilOS*	OSPtr;			// Need OS things? Here's the address.
 extern panel*	ourPanel;
-extern int		panelWith;
-extern int		panelHeight;
 
 #endif

@@ -7,8 +7,6 @@
 int		nextPanel	= NO_PANEL_ID;	// What panel do we want showing now?
 lilOS*	OSPtr			= NULL;			// Used by "packages" that need to access the OS's stuff.
 panel*	ourPanel		= NULL;
-int		panelWith	= 0;
-int		panelHeight	= 0;
 
 
 // *****************************************************
@@ -34,7 +32,7 @@ void appIcon::doAction(void) { nextPanel = mMessage; }
 	
 // And it all starts up again..
 panel::panel(int panelID,menuBarChoices menuBarChoice,eventSet inEventSet)
-  : drawGroup(0,0,panelWith,panelHeight,inEventSet) {
+  : drawGroup(0,0,screen->width(),screen->height(),inEventSet) {
   
 	mPanelID		= panelID;							// Save what "kind" of panel we are.
 	//mOSPtr		= OSPtr;								// Save off our copy to the OS.
@@ -134,10 +132,10 @@ void panel::handleCom(stdComs comID) {
 
 
 homePanel::homePanel(void)
-  : panel(HOME_PANEL_ID,noMenuBar) { } // Home panels have no panel to return to.
+  : panel(HOME_PANEL_ID,noMenuBar) { pathBuff = NULL; } // Home panels have no panel to return to.
 
 
-homePanel::~homePanel(void) {  }
+homePanel::~homePanel(void) { if (pathBuff) freeStr(&pathBuff); }
 
 
 void homePanel::setup(void) {  }
@@ -155,7 +153,14 @@ void homePanel::drawSelf(void) {
 }
 
 
+char* homePanel::iconPath(int panelID) {
 
+	heapStr(&pathBuff,OSPtr->getPanelIconPath(panelID));
+	return pathBuff;
+}
+   
+   
+   
 // *****************************************************
 // *********************   lilOS   ********************
 // *****************************************************
@@ -169,13 +174,6 @@ lilOS::lilOS(void) {
 }
 
 
-lilOS::lilOS(int homeID) {
-
-  mPanel		= NULL;
-  nextPanel	= homeID;
-}
-
-
 lilOS::~lilOS(void) { }
 
 
@@ -183,8 +181,6 @@ lilOS::~lilOS(void) { }
 bool lilOS::begin(void) {
 	
 	OSPtr			= this;									// Hookup the global pointer to ourselves.
-	panelWith	= getPanelWidth();					// Ask our child how wide their panels are.
-	panelHeight	= getPanelHeight();					// Ask our child how high their panels are.
 	hookup();												// Want to use idle()? Its ready.
 	icon32Mask.readFromBMP(stdIconPath(mask32));	// Read out and setup the standard 32x32 icon mask.
 	icon22Mask.readFromBMP(stdIconPath(mask22));	// Read out and setup the standard 22x22 icon mask.
@@ -286,3 +282,59 @@ const char* lilOS::stdIconPath(stdIcons theIcon) {
 	}
 	return pathBuff;
 }
+
+
+// Looking for a panel's folder path.
+const char* lilOS::getPanelFolder(int panelID) {
+	
+	filePath	ourPath;
+	
+	ourPath.setPath(getSystemFolder());										// Start with system folder.
+	if (ourPath.pushChildItemByName("appFiles")) {						// Add the appFiles folder.
+		if (ourPath.pushChildItemByName(getPanelName(panelID))) {	// Add the panel's name.
+			if (heapStr(&pathBuff,ourPath.getPath())) {					// Stuff this in the pathBuff..
+				return pathBuff;													// If we got here, we're a success!
+			}																			//
+		}																				//
+	}																					//
+	return NULL;																	// And we failed.
+}
+
+
+const char* lilOS::getPanelIconPath(int panelID) {
+
+	filePath	ourPath;
+	char* 	folderPath;
+	char* 	panelName;
+	char		buff[13];
+	
+	folderPath = NULL;														// Always start at NULL.
+	panelName = NULL;															// No exceptions.
+	freeStr(&pathBuff);														// Null out pathBuff. just in case.
+	if (heapStr(&folderPath,getPanelFolder(panelID))) {			// If we get panel folder path..
+		ourPath.setPath(folderPath);										// Setup path to folder.
+		if (heapStr(&panelName,ourPath.getCurrItemName())) {		// If we get the panel name..
+			strcpy(buff,panelName);											// Copy name to the buffer.
+			strcat(buff,".bmp");												// panel name + .bmp = icon.
+			ourPath.pushChildItemByName(buff);							// Add the icon name.
+			heapStr(&pathBuff,ourPath.getPath());						// Copy the result to our pathBuff.
+			freeStr(&panelName);												// recycle the panel name.
+		}																			//
+		freeStr(&folderPath);												// Recycle the folder path.
+	}																				//
+	return pathBuff;															// return the results of our labor.
+}
+					
+
+
+
+
+
+
+
+
+
+
+
+
+
