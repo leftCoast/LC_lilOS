@@ -102,10 +102,11 @@ class lilOS :  public idler {
 	virtual	~lilOS(void);
 
 	virtual	bool			begin(void);								// The global world is online, do hookups. Returns success.
+	virtual	bool			initPaths(void);							// Setup all the paths to our standard folders.
 	virtual	panel*		createPanel(int panelID);				// INHERIT THIS GUY AND CREATE YUR OWN CUSTOM PANELS.
 	virtual	void			launchPanel(void);						// Dispose of current and launch a newly created panel.
 	virtual	void			loop(void);									// Tell the current panel its loop time.
-	virtual	const char*	stdIconPath(stdIcons theIcon);
+	virtual	const char*	getStdIconPath(stdIcons theIcon);
 	virtual	const char*	getPanelFolder(int panelID);
 	virtual	const char*	getPanelIconPath(int panelID);
 	
@@ -116,6 +117,12 @@ class lilOS :  public idler {
 	virtual	const char* getPanelName(int panelID) = 0;
 	
 				char*		pathBuff;			// Workspace for building up file paths.
+				char*		systemPath;
+				char*		iconPath;
+				char*		kbdIconPath;
+				char*		stdIconPath;
+				char*		imagePath;
+				char*		appPath;
 				panel*	mPanel;
 				bmpMask	icon32Mask;
 				bmpMask	icon22Mask;

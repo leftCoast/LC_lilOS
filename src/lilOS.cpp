@@ -169,24 +169,42 @@ char* homePanel::iconPath(int panelID) {
 lilOS::lilOS(void) {
 
 	pathBuff 	= NULL;
+	systemPath	= NULL;
+	iconPath		= NULL;
+	kbdIconPath	= NULL;
+	stdIconPath	= NULL;
+	imagePath	= NULL;
+	appPath		= NULL;
 	mPanel		= NULL;
 	nextPanel	= HOME_PANEL_ID;
 }
+				
 
+lilOS::~lilOS(void) {
 
-lilOS::~lilOS(void) { }
+	freeStr(&pathBuff);
+	freeStr(&systemPath);
+	freeStr(&iconPath);
+	freeStr(&kbdIconPath);
+	freeStr(&stdIconPath);
+	freeStr(&imagePath);
+	freeStr(&appPath);
+}
 
 
 // A good plan would be to inherit, call this, the do your begin.
 bool lilOS::begin(void) {
 	
-	OSPtr			= this;									// Hookup the global pointer to ourselves.
-	hookup();												// Want to use idle()? Its ready.
-	icon32Mask.readFromBMP(stdIconPath(mask32));	// Read out and setup the standard 32x32 icon mask.
-	icon22Mask.readFromBMP(stdIconPath(mask22));	// Read out and setup the standard 22x22 icon mask.
-	nextPanel = HOME_PANEL_ID;							// Set to the default home panel.
-	return true;											// True means good to go!
-}
+	if (initPaths()) {
+		icon32Mask.readFromBMP(getStdIconPath(mask32));	// Read out and setup the standard 32x32 icon mask.
+		icon22Mask.readFromBMP(getStdIconPath(mask22));	// Read out and setup the standard 22x22 icon mask.
+		OSPtr = this;												// Hookup the global pointer to ourselves.
+		hookup();													// Want to use idle()? Its ready.
+		nextPanel = HOME_PANEL_ID;								// Set to the default home panel.
+		return true;												// True means good to go!
+	}																	//
+	return false;													// If we get here? we failed.	
+}																		//
 
 
 // This is the guy you inherit and use to create your custom panels.
@@ -227,60 +245,59 @@ void lilOS::loop(void) {
 }
 
 
-const char* lilOS::stdIconPath(stdIcons theIcon) {
+const char* lilOS::getStdIconPath(stdIcons theIcon) {
 	
-	int	numBytes;
+	filePath	ourPath;
+	char		nameBuff[20];
 	
-	numBytes = strlen(getSystemFolder());				// System folder path
-	numBytes = numBytes + strlen(STD_ICON_FLDR);		// Standard icon folder path inside system folder
-	numBytes = numBytes + 12;								// Max filename.
-	numBytes++;													// '\0'.
-	if (resizeBuff(numBytes,&pathBuff)) {
-		strcpy(pathBuff,getSystemFolder());
-		strcat(pathBuff,STD_ICON_FLDR);
-		switch(theIcon) {
-			case mask22 	: strcat(pathBuff,"mask22.bmp"); 	break;
-			case mask32 	: strcat(pathBuff,"mask32.bmp"); 	break;
-			case app32 		: strcat(pathBuff,"app32.bmp"); 		break;
-			case check22 	: strcat(pathBuff,"check22.bmp"); 	break;
-			case check32 	: strcat(pathBuff,"check32.bmp"); 	break;
-			case choice32 	: strcat(pathBuff,"choice32.bmp"); 	break;
-			case copy32 	: strcat(pathBuff,"copy32.bmp"); 	break;
-			case cross22 	: strcat(pathBuff,"cross22.bmp"); 	break;
-			case cross32 	: strcat(pathBuff,"cross32.bmp"); 	break;
-			case cut32 		: strcat(pathBuff,"cut32.bmp"); 		break;
-			case doc16 		: strcat(pathBuff,"doc16.bmp"); 		break;
-			case edit22 	: strcat(pathBuff,"edit22.bmp"); 	break;
-			case edit32 	: strcat(pathBuff,"edit32.bmp"); 	break;
-			case fNew22		: strcat(pathBuff,"fNew22.bmp"); 	break;
-			case fNew32		: strcat(pathBuff,"fNew32.bmp"); 	break;
-			case folder16	: strcat(pathBuff,"fldr16.bmp"); 	break;
-			case fldrRet16	: strcat(pathBuff,"fldrBk16.bmp"); 	break;
-			case fSave22	: strcat(pathBuff,"fSave22.bmp"); 	break;
-			case fSave32	: strcat(pathBuff,"fSave32.bmp"); 	break;
-			case fOpen22 	: strcat(pathBuff,"fOpen22.bmp"); 	break;
-			case fOpen32 	: strcat(pathBuff,"fOpen32.bmp"); 	break;
-			case FdrNew22	: strcat(pathBuff,"FdrNew22.bmp"); 	break;
-			case FdrNew32	: strcat(pathBuff,"FdrNew32.bmp"); 	break;
-			case note32		: strcat(pathBuff,"note32.bmp"); 	break;
-			case paste32 	: strcat(pathBuff,"paste32.bmp"); 	break;
-			case pref22 	: strcat(pathBuff,"pref22.bmp");		break;
-			case pref32 	: strcat(pathBuff,"pref32.bmp"); 	break;
-			case SDCard16 	: strcat(pathBuff,"SD16.bmp"); 		break;
-			case search22	: strcat(pathBuff,"search22.bmp"); 	break;
-			case search32	: strcat(pathBuff,"search32.bmp"); 	break;
-			case sort22		: strcat(pathBuff,"sort22.bmp"); 	break;
-			case sort32		: strcat(pathBuff,"sort32.bmp"); 	break;
-			case trashC22	: strcat(pathBuff,"trashC22.bmp"); 	break;
-			case trashC32	: strcat(pathBuff,"trashC32.bmp"); 	break;
-			case trashR22	: strcat(pathBuff,"trashR22.bmp"); 	break;
-			case trashR32	: strcat(pathBuff,"trashR32.bmp"); 	break;
-			case warn32		: strcat(pathBuff,"warn32.bmp"); 	break;
-			case x22			: strcat(pathBuff,"x22.bmp"); 		break;
-			case x32			: strcat(pathBuff,"x32.bmp"); 		break;
-		}
-	}
-	return pathBuff;
+	freeStr(&pathBuff);																// Clear out pathBuff.
+	if (ourPath.setPath(stdIconPath)) {											// If we can set the stdIcon path..
+		switch(theIcon) {																// Lets map the icon ID to it's name..
+			case mask22 	: strcpy(nameBuff,"mask22.bmp"); 	break;	// Lots of 'em..
+			case mask32 	: strcpy(nameBuff,"mask32.bmp"); 	break;	//
+			case app32 		: strcpy(nameBuff,"app32.bmp"); 		break;	//
+			case check22 	: strcpy(nameBuff,"check22.bmp"); 	break;	//
+			case check32 	: strcpy(nameBuff,"check32.bmp"); 	break;	//
+			case choice32 	: strcpy(nameBuff,"choice32.bmp"); 	break;	//
+			case copy32 	: strcpy(nameBuff,"copy32.bmp"); 	break;	//
+			case cross22 	: strcpy(nameBuff,"cross22.bmp"); 	break;	//
+			case cross32 	: strcpy(nameBuff,"cross32.bmp"); 	break;	//
+			case cut32 		: strcpy(nameBuff,"cut32.bmp"); 		break;	//
+			case doc16 		: strcpy(nameBuff,"doc16.bmp"); 		break;	//
+			case edit22 	: strcpy(nameBuff,"edit22.bmp"); 	break;	//
+			case edit32 	: strcpy(nameBuff,"edit32.bmp"); 	break;	//
+			case fNew22		: strcpy(nameBuff,"fNew22.bmp"); 	break;	//
+			case fNew32		: strcpy(nameBuff,"fNew32.bmp"); 	break;	//
+			case folder16	: strcpy(nameBuff,"fldr16.bmp"); 	break;	//
+			case fldrRet16	: strcpy(nameBuff,"fldrBk16.bmp"); 	break;	//
+			case fSave22	: strcpy(nameBuff,"fSave22.bmp"); 	break;	//
+			case fSave32	: strcpy(nameBuff,"fSave32.bmp"); 	break;	//
+			case fOpen22 	: strcpy(nameBuff,"fOpen22.bmp"); 	break;	//
+			case fOpen32 	: strcpy(nameBuff,"fOpen32.bmp"); 	break;	//
+			case FdrNew22	: strcpy(nameBuff,"FdrNew22.bmp"); 	break;	//
+			case FdrNew32	: strcpy(nameBuff,"FdrNew32.bmp"); 	break;	//
+			case note32		: strcpy(nameBuff,"note32.bmp"); 	break;	//
+			case paste32 	: strcpy(nameBuff,"paste32.bmp"); 	break;	//
+			case pref22 	: strcpy(nameBuff,"pref22.bmp");		break;	//
+			case pref32 	: strcpy(nameBuff,"pref32.bmp"); 	break;	//
+			case SDCard16 	: strcpy(nameBuff,"SD16.bmp"); 		break;	//
+			case search22	: strcpy(nameBuff,"search22.bmp"); 	break;	//
+			case search32	: strcpy(nameBuff,"search32.bmp"); 	break;	//
+			case sort22		: strcpy(nameBuff,"sort22.bmp"); 	break;	//
+			case sort32		: strcpy(nameBuff,"sort32.bmp"); 	break;	//
+			case trashC22	: strcpy(nameBuff,"trashC22.bmp"); 	break;	//
+			case trashC32	: strcpy(nameBuff,"trashC32.bmp"); 	break;	//
+			case trashR22	: strcpy(nameBuff,"trashR22.bmp"); 	break;	//
+			case trashR32	: strcpy(nameBuff,"trashR32.bmp"); 	break;	//
+			case warn32		: strcpy(nameBuff,"warn32.bmp"); 	break;	//
+			case x22			: strcpy(nameBuff,"x22.bmp"); 		break;	//
+			case x32			: strcpy(nameBuff,"x32.bmp"); 		break;	//
+		}																					//
+		if (ourPath.pushChildItemByName(nameBuff)) {							// Move the path to the icon file.
+			heapStr(&pathBuff,ourPath.getPath()); 								// Save it off.	
+		}																					//
+	}																						//
+	return pathBuff;																	//
 }
 
 
@@ -289,43 +306,71 @@ const char* lilOS::getPanelFolder(int panelID) {
 	
 	filePath	ourPath;
 	
-	ourPath.setPath(getSystemFolder());										// Start with system folder.
-	if (ourPath.pushChildItemByName("appFiles")) {						// Add the appFiles folder.
+	freeStr(&pathBuff);															// Clear out pathBuff.
+	if (ourPath.setPath(appPath)) {											// Start with appFiles folder.
 		if (ourPath.pushChildItemByName(getPanelName(panelID))) {	// Add the panel's name.
-			if (heapStr(&pathBuff,ourPath.getPath())) {					// Stuff this in the pathBuff..
-				return pathBuff;													// If we got here, we're a success!
-			}																			//
+			heapStr(&pathBuff,ourPath.getPath()); 							// Save it off.	
 		}																				//
 	}																					//
-	return NULL;																	// And we failed.
+	return pathBuff;																// return our results.
 }
 
 
 const char* lilOS::getPanelIconPath(int panelID) {
 
-	filePath	ourPath;
-	char* 	folderPath;
-	char* 	panelName;
-	char		buff[13];
+	filePath	ourPath;													// File path tool.
+	char		appName[20];											// A holder for the name, extra sized.
 	
-	folderPath = NULL;														// Always start at NULL.
-	panelName = NULL;															// No exceptions.
-	freeStr(&pathBuff);														// Null out pathBuff. just in case.
-	if (heapStr(&folderPath,getPanelFolder(panelID))) {			// If we get panel folder path..
-		ourPath.setPath(folderPath);										// Setup path to folder.
-		if (heapStr(&panelName,ourPath.getCurrItemName())) {		// If we get the panel name..
-			strcpy(buff,panelName);											// Copy name to the buffer.
-			strcat(buff,".bmp");												// panel name + .bmp = icon.
-			ourPath.pushChildItemByName(buff);							// Add the icon name.
-			heapStr(&pathBuff,ourPath.getPath());						// Copy the result to our pathBuff.
-			freeStr(&panelName);												// recycle the panel name.
-		}																			//
-		freeStr(&folderPath);												// Recycle the folder path.
-	}																				//
-	return pathBuff;															// return the results of our labor.
+	freeStr(&pathBuff);												// Clear out pathBuff.
+	if (ourPath.setPath(getPanelFolder(panelID))) {			// If we can get the app's folder..
+		strcpy(appName,ourPath.getCurrItemName());			// Copy the name..
+		if (appName[0]!='\0') {										// Not an empty name..
+			strcat(appName,".bmp");									// panel name + .bmp = icon name.
+			if (ourPath.pushChildItemByName(appName)) {		// Add the icon's name.
+				heapStr(&pathBuff,ourPath.getPath());			// Copy the result to our pathBuff.
+			}																//
+		}																	//
+	}																		//
+	return pathBuff;													// return our results.
 }
 					
 
+bool lilOS::initPaths(void) {
+
+	filePath	ourPath;
+	
+	if (ourPath.setPath(getSystemFolder())) {															// Start with the system folder.
+		if (heapStr(&systemPath,ourPath.getPath())) {												// Save it off.
+			if (ourPath.pushChildItemByName("appFiles")) {											// Move the path to the appFiles folder.
+				if (heapStr(&appPath,ourPath.getPath())) {											// Save it off.
+					ourPath.popItem();																		// Back to system folder.
+					if (ourPath.pushChildItemByName("icons")) {										// Move the path to the icons folder.
+						if (heapStr(&iconPath,ourPath.getPath())) {									// Save it off.
+							ourPath.popItem();																// Back to system folder.
+							if (ourPath.pushChildItemByName("images")) {								// Move the path to the images folder.
+								if (heapStr(&imagePath,ourPath.getPath())) {							// Save it off.
+									if (ourPath.setPath(iconPath)) {										// Back to icons folder.
+										if (ourPath.pushChildItemByName("keyboard")) {				// Move the path to the keyboard folder.
+											if (heapStr(&kbdIconPath,ourPath.getPath())) {			// Save it off.
+												ourPath.popItem();											// Back to icons folder.
+												if (ourPath.pushChildItemByName("standard")) {		// Move the path to the standard folder.
+													if (heapStr(&stdIconPath,ourPath.getPath())) {	// Save it off.
+														return true;											// Call it good!
+													}																//
+												}																	//
+											}																		//
+										}																			//
+									}																				//
+								}																					//
+							}																						//
+						}																							//
+					}																								//
+				}																									//
+			}																										//
+		}																											//
+	}																												//	
+	return false;																								// If we got here, something failed.
+}																
 
 
 
