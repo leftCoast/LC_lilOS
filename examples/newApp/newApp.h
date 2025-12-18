@@ -7,87 +7,34 @@
 // **********************************************************************
 //                            newApp template. 
 //
-//  This is the starting point for creating a new "application" panel for
-//  a handheld device.
+// This is the starting point for creating a new "application" panel for
+// a handheld device.
 //
-//  How to use :
-//  First you must pick two names. 
+// First you must pick a name for your app. It can be 8 chars or less.
+// no dots or slashes please.
+//  
+// The application name will typically be the name used for your app's
+// .h and .cpp files. As well as your app's main class name.
+//
+// All your app's code files should be placed in a folder That can live 
+// in your Arduino libraries folder. This folder's name is up to you.
+//
+// Now, if your App needs any data? files? artork? What have you. THIS
+// ALL GOES IN A FOLDER WITH YOUR APP's NAME ON IT. Typically stored
+// in the folder with all the source code.
+//
+// ON YOUR SD CARD, you should have a /system/appFiles/ folder. Drop a
+// copy of your App's data folder into there. (The one with your App's
+// name on it.) Then reinstall your SD card. Now your OS will know where
+// to find your App's goodies when asked.
 // 
-//  Your applicatoin name
-//         ** and **
-//  Your application ID name. 
-//
-//  The application name will typically be the name used for your app's
-//  .h and .cpp files. As well as your app's class name.
-// 
-//  The application's ID name must be different than the application's
-//  name. The application's ID name is placed in your OS's apps enum.
-// 
-//  Substitute your application name for appName.
-//  Substitute your application ID name for newAppID.
-//  Once this is done, save this under your new application name as its
-//  .h file. 
-//
-//  Lastly, go to appName.cpp and change the names there just as you did
-//  here. Then save that file under your new application name as its
-//  .cpp file.
-//
 // **********************************************************************
 
 
 // **********************************************************************
-// 						THIS HAS TO POINT TO YOUR OS
+// 						The base lilOS class
 //
-#include	"../../handheldOS.h"
-//
-// **********************************************************************
-
-
-// **********************************************************************
-//  This needs to be added to your os's .h file :
-//
-//  There will be a line beginning.. 
-// 
-//  num  apps { homeApp = HOME_PANEL_ID,
-//
-//  You need to add newAppID to this list.
-// **********************************************************************
-
-
-// **********************************************************************
-//  These need to be added to your os's.cpp file :
-//
-//                     #include "appName.h"
-//
-//                   Or, if using a src folder..
-//
-//                 #include "src/appName/appName.h"
-//
-//  And in your OS's createPanel(int panelID) method, add the line..
-//
-//					"case newAppID : return new appName();"
-//
-// **********************************************************************
-
-
-// **********************************************************************
-//  If you are going to use icons and other artwork for your application,
-//  you can to use the two system folders on your SD card to store them.
-//  /system/images/
-//  /system/icons/
-//  You should create sub folders for your images and icons so they don't
-//  get mixed into all the other images and icons that might be in there.
-//
-//  And for lord's sakes don't call your folders "icons" an "images".
-//  They need to be different than all the other image and icon folders
-//  used by all the other applications.
-//
-//  Most likely you will need to add the full path of your application
-//  icon to the source file that contains your home screen. Because it'll
-//  probably need to display your application's icon for the user to
-//  click on. But, how all that's accomplished is pretty much up to you.
-// **********************************************************************
-
+#include	<lilOS.h>
 
 
 class appName	: public panel {
@@ -96,10 +43,10 @@ class appName	: public panel {
 					appName(void);
 	virtual		~appName(void);
 	
-	virtual void  setup(void);
-	virtual void  loop(void);
-	virtual void  drawSelf(void);
-	virtual void  closing(void);
+	virtual void  setup(void);			// Run once. do your setup here.
+	virtual void  loop(void);			// Run over and over. Do stuff here.
+	virtual void  drawSelf(void);		// If you want to draw your background, do it here.
+	virtual void  closing(void);		// Need to save anything before closing shop? Do it here.
 };
 
 #endif

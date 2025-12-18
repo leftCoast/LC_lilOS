@@ -1,12 +1,15 @@
 #include  "appName.h"
 
 
-// We create our appName object and pass newAppID into the panel constructor.
-appName::appName()
+// We create our appName object and, at least, pass the newAppID into our
+// base panel constructor. Then you are free to do whatever you need in here.
+appName::appName(int newAppID)
   : panel(newAppID) { }
 
 
-// The world as you know it, is ending..
+// The world as you know it, is ending. Deallocate what you need to. Don't
+// deallocate stuff you've handed to addObj(). Those items will be dealt
+// with internally.
 appName::~appName(void) { }
 
 
