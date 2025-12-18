@@ -291,7 +291,7 @@ void documentPanel::handleComSelectOpen(stdComs comID) {
 		case okCmd			:															// Ok ws cliked..
 			pathResult.setStr(selectAlert->getPathResult());				// Copy whatever they give us.
 			if (ourDoc->changeDocFile(pathResult.getStr())) {				// If we can change to this new file..
-				if (ourDoc->openDocFile(FILE_WRITE)) {							// If we can open the damn file.
+				if (ourDoc->openDocFile(fWrite)) {								// If we can open the damn file.
 					ourState = haveNamedFileNoEdits;								// We have a named file with no edits yet.
 					break;																// All done, wash hands and scram!
 				}																			//

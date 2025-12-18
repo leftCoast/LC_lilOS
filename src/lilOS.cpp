@@ -33,11 +33,11 @@ void appIcon::doAction(void) { nextPanel = mMessage; }
 // And it all starts up again..
 panel::panel(int panelID,menuBarChoices menuBarChoice,eventSet inEventSet)
   : drawGroup(0,0,screen->width(),screen->height(),inEventSet) {
-  
+
 	mPanelID		= panelID;							// Save what "kind" of panel we are.
-	//mOSPtr		= OSPtr;								// Save off our copy to the OS.
 	mMenuBar		= NULL;								// Default to NULL.
 	mFilePath	= NULL;								// This too.
+	ourPanel		= this;								// Let's get this in early.
 	switch (menuBarChoice) {						// Lets see what kind of bar they wish for?
 		case noMenuBar			: break;				// None? Fine, we go now.
 		case emptyMenuBar		: 						// Now, panels are created by the O.S. during runtime.
@@ -49,7 +49,6 @@ panel::panel(int panelID,menuBarChoices menuBarChoice,eventSet inEventSet)
 			addObj(mMenuBar);
 		break;
 	}
-	ourPanel = this;
  }
 
 
@@ -77,7 +76,6 @@ bool panel::setFilePath(const char* inName) {
 
 	success = false;
 	folderPtr = NULL;
-	//if (heapStr(&folderPtr,mOSPtr->getPanelFolder(mPanelID))) {	// If we got a folder path..
 	if (heapStr(&folderPtr,OSPtr->getPanelFolder(mPanelID))) {	// If we got a folder path..
 		pathLen = strlen(folderPtr);										// Num chars in this path..
 		pathLen = pathLen + strlen(inName) + 1;						// Add more for the file name, '\' and '\0'.
@@ -232,16 +230,18 @@ void lilOS::launchPanel(void) {
 }
 
 
+
 // Tell the current panel its loop time.
 void lilOS::loop(void) {
 	
-	
-	if(!mPanel && nextPanel != NO_PANEL_ID) {		// If have no panel and we want one.
+	if(!mPanel) {											// If we don't have a panel..
+		if (nextPanel != NO_PANEL_ID) {				// And if we want one.
+			screen->fillScreen(&green);
+			launchPanel();									// Launch a new panel.
+		}														//
+	} else if(nextPanel!=mPanel->getPanelID()) {	// Else, we have a panel, But we want a change.
 		launchPanel();										// Launch a new panel.
-	} else if(nextPanel!=mPanel->getPanelID()) {	// Else, if we just want a change of panels.
-		launchPanel();										// Launch the new panel.
-	}															//
-	if (mPanel) { mPanel->loop(); }					// As always, if there is a panel, let it have some loop time.
+	} else { mPanel->loop(); }							// As always, if there is a panel, let it have some loop time.
 }
 
 
