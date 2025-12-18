@@ -236,7 +236,6 @@ void lilOS::loop(void) {
 	
 	if(!mPanel) {											// If we don't have a panel..
 		if (nextPanel != NO_PANEL_ID) {				// And if we want one.
-			screen->fillScreen(&green);
 			launchPanel();									// Launch a new panel.
 		}														//
 	} else if(nextPanel!=mPanel->getPanelID()) {	// Else, we have a panel, But we want a change.
@@ -328,10 +327,11 @@ const char* lilOS::getPanelIconPath(int panelID) {
 			strcat(appName,".bmp");									// panel name + .bmp = icon name.
 			if (ourPath.pushChildItemByName(appName)) {		// Add the icon's name.
 				heapStr(&pathBuff,ourPath.getPath());			// Copy the result to our pathBuff.
+				return pathBuff;										// Return what we found.
 			}																//
 		}																	//
-	}																		//
-	return pathBuff;													// return our results.
+	}																		// 
+	return getStdIconPath(app32);									// No folder? No file? Return the default icon.
 }
 					
 
