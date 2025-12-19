@@ -24,21 +24,6 @@ char* docStateStr(docPanelStates aState) {
 	return stateStr;
 }
 
-/*
-bool appleFilter(pathItem* inItem) {
-
-	if (inItem->getName()[0]=='_') 					return false;
-	if (!strcmp(inItem->getName(),"SPOTLI~1"))	return false;
-	if (!strcmp(inItem->getName(),"TRASHE~1"))	return false;
-	if (!strcmp(inItem->getName(),".TRASHES"))	return false;
-	if (!strcmp(inItem->getName(),"FSEVEN~1"))	return false;
-	if (strstr(inItem->getName(),"DS_STO"))		return false;
-	if (strstr(inItem->getName(),".DS_"))			return false;
-	if (strstr(inItem->getName(),"._"))				return false;
-	if (strstr(inItem->getName(),".FSEVE"))		return false;
-	else return true;
-}
-*/
 
 bool hasExtension(char* inStr,const char* extension) {
 
@@ -370,14 +355,14 @@ void documentPanel::handleNewDocFileOpen(stdComs comID) {
 void documentPanel::handleCom(stdComs comID) {
 	
 	if (ourDoc) {																								// If we have a fileObj..
-		if (ourDoc->fileEdited()) {																// If it has changes..
+		if (ourDoc->fileEdited()) {																		// If it has changes..
 			switch(ourState) {																				// For these unedited states..
 				case fileClosed				: 																// fileClosed and..
 				case haveFileNoNameNoEdits	: ourState = hasEditsNoName; break;					// no name no edits -> hasEditsNoName.
 				case haveNamedFileNoEdits	: ourState = hasEditsNamed; break;					// Has Name no edits -> hasEditsNamed.
 				default							: break;														// Shut up compiler!
 			}																										//
-		}
+		}																											//
 		switch(ourState) {																					// For each state we can be in..
 			case fileClosed				: handleComFileClosed(comID);					break;	// We have a handeler
 			case haveFileNoNameNoEdits	: handleComHaveFileNoNameNoEdits(comID);	break;	// to deal with it.
@@ -391,6 +376,6 @@ void documentPanel::handleCom(stdComs comID) {
 		}																											//
 	} else {																										// Else, things are set up wrong!
 		panel::handleCom(comID);																			// So, just let the ancestor deal with it.
-	}
+	}																												//
 }
 
