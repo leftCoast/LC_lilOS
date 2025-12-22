@@ -1,8 +1,6 @@
 #ifndef appName_h
 #define appName_h
 
-#include "panel.h"
-#include "lilOS.h"
 
 // **********************************************************************
 //                            newApp template. 
@@ -40,13 +38,13 @@
 class appName	: public panel {
 
 	public:
-					appName(void);
-	virtual		~appName(void);
+				appName(int newAppID);
+	virtual	~appName(void);
 	
-	virtual void  setup(void);			// Run once. do your setup here.
-	virtual void  loop(void);			// Run over and over. Do stuff here.
-	virtual void  drawSelf(void);		// If you want to draw your background, do it here.
-	virtual void  closing(void);		// Need to save anything before closing shop? Do it here.
+	virtual	void  setup(void);			// Run once. do your setup here.
+	virtual	void  loop(void);			// Run over and over. Do stuff here.
+	virtual	void  drawSelf(void);		// If you want to draw your background, do it here.
+	virtual	void  closing(void);		// Need to save anything before closing shop? Do it here.
 };
 
 #endif
