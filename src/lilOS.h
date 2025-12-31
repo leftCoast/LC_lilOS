@@ -61,7 +61,7 @@ class panel :	public drawGroup,
 	virtual	~panel(void);
 	
 				int	getPanelID();
-				bool	setFilePath(const char* inName);
+				bool	setFilePath(const char* inName); // Sets mFilePath below.
 	virtual	void	setup(void);
 	virtual	void	loop(void);
 	virtual	void	drawSelf(void);
