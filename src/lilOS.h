@@ -10,9 +10,6 @@
 #define	NO_PANEL_ID		0		// You have to have this guy.
 #define	HOME_PANEL_ID	1
 
-#define STD_ICON_FLDR		"icons/standard/"
-
-
 
 // The list of standard icons supplied by the OS for the applications to use.
 enum stdIcons	{
@@ -31,12 +28,12 @@ enum stdIcons	{
 class appIcon : public iconButton {
   
   public:
-          appIcon(int xLoc,int yLoc,int message,const char* path,int pix=32);	// Path to .bmp icon dwg.
+          appIcon(int xLoc,int yLoc,int aPanelID,const char* path,int pix=32);	// Path to .bmp icon dwg.
   virtual ~appIcon(void);
   
   virtual void  doAction(void);
 
-          int  mMessage;
+          int  panelID;
 };
 
 

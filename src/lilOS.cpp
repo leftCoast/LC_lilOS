@@ -14,14 +14,14 @@ panel*	ourPanel		= NULL;
 // *****************************************************
 
 
-appIcon::appIcon(int xLoc,int yLoc,int message,const char* path,int pix)
-  : iconButton(xLoc,yLoc,path,pix) { mMessage = message;}
+appIcon::appIcon(int xLoc,int yLoc,int aPanelID,const char* path,int pix)
+  : iconButton(xLoc,yLoc,path,pix) { panelID = aPanelID;}
 
   
 appIcon::~appIcon(void) { }
 
 
-void appIcon::doAction(void) { nextPanel = mMessage; }
+void appIcon::doAction(void) { nextPanel = panelID; }
 
 
 	
