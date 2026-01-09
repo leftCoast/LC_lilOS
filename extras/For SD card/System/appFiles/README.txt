@@ -1,5 +1,5 @@
 Application folders go in here. Each application should have a folder with it's name and, 
-at the minimum, a .bmp file (With the same name as the app & it's folder) if a 32x32 icon
+at the minimum, a .bmp file (With the same name as the app & it's folder) of a 32x32 icon
 that can be displayed on the home screen to be clicked on to launch that app.
 
 LC__xyzApp  		      - The library containing xyzApp. And inside you find..
