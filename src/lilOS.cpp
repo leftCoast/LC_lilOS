@@ -291,9 +291,11 @@ const char* lilOS::getStdIconPath(stdIcons theIcon) {
 			case warn32		: strcpy(nameBuff,"warn32.bmp"); 	break;	//
 			case x22			: strcpy(nameBuff,"x22.bmp"); 		break;	//
 			case x32			: strcpy(nameBuff,"x32.bmp"); 		break;	//
+			case qMark32	: strcpy(nameBuff,"qMark32.bmp"); 	break;	//
+			case qMark22	: strcpy(nameBuff,"qMark22.bmp"); 	break;	//
 		}																					//
 		if (ourPath.pushChildItemByName(nameBuff)) {							// Move the path to the icon file.
-			heapStr(&pathBuff,ourPath.getPath()); 								// Save it off.	
+			heapStr(&pathBuff,ourPath.getPath()); 								// Save it off.
 		}																					//
 	}																						//
 	return pathBuff;																	//
