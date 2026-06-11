@@ -54,7 +54,8 @@ panel::panel(int panelID,menuBarChoices menuBarChoice,eventSet inEventSet)
 
 // The world as you know it, is ending..
 panel::~panel(void) { 
-	
+	Serial.print("---CLOSING PANEL--- We were panelID : ");
+	Serial.println(mPanelID);
 	resizeBuff(0,&mFilePath);
 	ourPanel = NULL;
 }
@@ -73,19 +74,26 @@ bool panel::setFilePath(const char* inName) {
 	int			pathLen;
 	bool			success;
 	
-
-	success = false;
-	folderPtr = NULL;
-	if (heapStr(&folderPtr,OSPtr->getPanelFolder(mPanelID))) {	// If we got a folder path..
-		pathLen = strlen(folderPtr);										// Num chars in this path..
-		pathLen = pathLen + strlen(inName) + 1;						// Add more for the file name, '\' and '\0'.
-		if (resizeBuff(pathLen,&mFilePath)) {							// If we can get the RAM for the path..
-			strcpy(mFilePath,folderPtr);									// Our folder path goes in.
-			strcat(mFilePath,inName);										// File name goes in.
-			success = true;													// Looks good!
-		}																			//
-		freeStr(&folderPtr);													// Recycle our local copy.
-	}																				//
+	success = false;																// Not a succes yet..
+	if (inName) {																	// Mad user filter..
+		folderPtr = NULL;															//
+		if (heapStr(&folderPtr,OSPtr->getPanelFolder(mPanelID))) {	// If we got a folder path..
+			pathLen = strlen(folderPtr);										// Num chars in this path..
+			pathLen = pathLen + strlen(inName) + 2;						// Add more for the file name, '\' and '\0'.
+			if (resizeBuff(pathLen,&mFilePath)) {							// If we can get the RAM for the path..
+				strcpy(mFilePath,folderPtr);									// Our folder path goes in.
+				strcat(mFilePath,inName);										// File name goes in.
+				
+				Serial.print(">>>>>>>> pathLen = ");Serial.println(pathLen);												//
+				Serial.print(">>>>>>>> Actual path = ");Serial.println(strlen(mFilePath)+1);
+				if ((strlen(mFilePath)+1)>pathLen) Serial.println("\t********** WARNING OVERWRITING RAM WARNING WARNING!! **********");
+				Serial.print(">>>>>>>> Returning [");Serial.print(mFilePath);Serial.println("]");
+				
+				success = true;													// Looks good!
+			}																			//
+			freeStr(&folderPtr);													// Recycle our local copy.
+		}																				//
+	}
 	return success;															// Return our result.
 }
 
@@ -293,11 +301,14 @@ const char* lilOS::getStdIconPath(stdIcons theIcon) {
 			case x32			: strcpy(nameBuff,"x32.bmp"); 		break;	//
 			case qMark32	: strcpy(nameBuff,"qMark32.bmp"); 	break;	//
 			case qMark22	: strcpy(nameBuff,"qMark22.bmp"); 	break;	//
+			default			: Serial.println("Bougus icon value!");
 		}																					//
 		if (ourPath.pushChildItemByName(nameBuff)) {							// Move the path to the icon file.
 			heapStr(&pathBuff,ourPath.getPath()); 								// Save it off.
-		}																					//
-	}																						//
+		}
+	} else {
+		Serial.println("getStdIconPath() failed ourPath.setPath(stdIconPath)");
+	}																					//
 	return pathBuff;																	//
 }
 
