@@ -30,15 +30,17 @@ bool hasExtension(char* inStr,const char* extension) {
 	int 	numChars;
 	int	index;
 	
-	numChars = strlen(inStr);
-	if (numChars>(int)strlen(extension)) {
-		index = numChars;
-		while(inStr[index]!='.'&&index>=0) index--;
-		if (inStr[index]=='.') {
-			return !strcmp(&(inStr[index]),extension);
-		}
-	}
-	return false;
+	if (inStr && extension) {										// Crazy person filter.
+		numChars = strlen(inStr);										// Count 'em.
+		if (numChars>(int)strlen(extension)) {						// Check 'em.
+			index = numChars;												// Do all them thngs you do so well..
+			while(inStr[index]!='.'&&index>=0) index--;			//
+			if (inStr[index]=='.') {									//
+				return !strcmp(&(inStr[index]),extension);		// Return success or not.
+			}																	//
+		}																		//
+	}																			//
+	return false;															// If we got here? It's a fail.
 }
 
 
