@@ -54,8 +54,7 @@ panel::panel(int panelID,menuBarChoices menuBarChoice,eventSet inEventSet)
 
 // The world as you know it, is ending..
 panel::~panel(void) { 
-	Serial.print("---CLOSING PANEL--- We were panelID : ");
-	Serial.println(mPanelID);
+	
 	resizeBuff(0,&mFilePath);
 	ourPanel = NULL;
 }
@@ -83,12 +82,6 @@ bool panel::setFilePath(const char* inName) {
 			if (resizeBuff(pathLen,&mFilePath)) {							// If we can get the RAM for the path..
 				strcpy(mFilePath,folderPtr);									// Our folder path goes in.
 				strcat(mFilePath,inName);										// File name goes in.
-				
-				Serial.print(">>>>>>>> pathLen = ");Serial.println(pathLen);												//
-				Serial.print(">>>>>>>> Actual path = ");Serial.println(strlen(mFilePath)+1);
-				if ((strlen(mFilePath)+1)>pathLen) Serial.println("\t********** WARNING OVERWRITING RAM WARNING WARNING!! **********");
-				Serial.print(">>>>>>>> Returning [");Serial.print(mFilePath);Serial.println("]");
-				
 				success = true;													// Looks good!
 			}																			//
 			freeStr(&folderPtr);													// Recycle our local copy.
