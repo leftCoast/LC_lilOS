@@ -340,7 +340,7 @@ const char* lilOS::getPanelIconPath(int panelID) {
 	return getStdIconPath(app32);									// No folder? No file? Return the default icon.
 }
 					
-
+// NOTE : NEED TO ADD PROGRAM FOLDER CHECK.
 bool lilOS::initPaths(void) {
 
 	filePath	ourPath;
@@ -362,7 +362,7 @@ bool lilOS::initPaths(void) {
 												if (ourPath.pushChildItemByName("standard")) {		// Move the path to the standard folder.
 													if (heapStr(&stdIconPath,ourPath.getPath())) {	// Save it off.
 														return true;											// Call it good!
-													}																//
+													} 																//
 												}																	//
 											}																		//
 										}																			//
@@ -374,7 +374,7 @@ bool lilOS::initPaths(void) {
 				}																									//
 			}																										//
 		}																											//
-	}																												//	
+	}																												//
 	return false;																								// If we got here, something failed.
 }																
 
