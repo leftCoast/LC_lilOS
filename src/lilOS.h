@@ -5,8 +5,13 @@
 #include <drawObj.h>
 #include <menuBar.h>
 
-// Look, just start your numbering at 2 alright?
-#define	NO_PANEL_ID		0		// You have to have this guy.
+
+// EXPAND THIS TO *** local and public version of panels. Local has an appFiles folder in
+// the program folder. Public uses the system appFiles folder as always.
+
+
+// Look, just start your numbering of your app ID enums at 2 alright?
+#define	NO_PANEL_ID		0		// You already have these guys. 
 #define	HOME_PANEL_ID	1
 
 
@@ -97,16 +102,17 @@ class lilOS :  public idler {
 				lilOS(void);
 	virtual	~lilOS(void);
 
-	virtual	bool			begin(void);								// The global world is online, do hookups. Returns success.
-	virtual	bool			initPaths(void);							// Setup all the paths to our standard folders.
-	virtual	panel*		createPanel(int panelID);				// INHERIT THIS GUY AND CREATE YUR OWN CUSTOM PANELS.
-	virtual	void			launchPanel(void);						// Dispose of current and launch a newly created panel.
-	virtual	void			loop(void);									// Tell the current panel its loop time.
+	virtual	bool			begin(void);									// The global world is online, do hookups. Returns success.
+	virtual	bool			initPaths(void);								// Setup all the paths to our standard folders.
+	virtual	panel*		createPanel(int panelID);					// INHERIT THIS GUY AND CREATE YUR OWN CUSTOM PANELS.
+	virtual	void			launchPanel(void);							// Dispose of current and launch a newly created panel.
+	virtual	void			loop(void);										// Tell the current panel its loop time.
+	virtual	const char*	getProgramPath(const char* fileName);	// Want the path to a file in our program folder?
 	virtual	const char*	getStdIconPath(stdIcons theIcon);
 	virtual	const char*	getPanelFolder(int panelID);
 	virtual	const char*	getPanelIconPath(int panelID);
 	
-	// Calls to be overwritten by used version.
+	// Calls to be overwritten by user version. (That would be you!)
 	virtual	void			beep(void) = 0;
 	virtual	int			getTonePin(void) = 0;
 	virtual	const char*	getSystemFolder() = 0;
@@ -114,6 +120,7 @@ class lilOS :  public idler {
 	
 				char*		pathBuff;			// Workspace for building up file paths.
 				char*		systemPath;
+				char*		programPath;
 				char*		iconPath;
 				char*		kbdIconPath;
 				char*		stdIconPath;

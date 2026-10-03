@@ -2,7 +2,7 @@
 #include <lilOS.h>
 #include <resizeBuff.h>
 #include <strTools.h>
-//#include <debug.h>
+#include <debug.h>
 
 int		nextPanel	= NO_PANEL_ID;	// What panel do we want showing now?
 lilOS*	OSPtr			= NULL;			// Used by "packages" that need to access the OS's stuff.
@@ -169,6 +169,7 @@ lilOS::lilOS(void) {
 
 	pathBuff 	= NULL;
 	systemPath	= NULL;
+	programPath	= NULL;
 	iconPath		= NULL;
 	kbdIconPath	= NULL;
 	stdIconPath	= NULL;
@@ -183,6 +184,7 @@ lilOS::~lilOS(void) {
 
 	freeStr(&pathBuff);
 	freeStr(&systemPath);
+	freeStr(&programPath);
 	freeStr(&iconPath);
 	freeStr(&kbdIconPath);
 	freeStr(&stdIconPath);
@@ -245,12 +247,35 @@ void lilOS::loop(void) {
 }
 
 
+// Want the path to a file in our program folder? This should also work for adding
+// subpaths to things as well.
+const char* lilOS::getProgramPath(const char* fileName) {
+
+	int	numChars;
+	
+	if (programPath && fileName) {								// Just in case they try to slip a NULL on us..
+		numChars = strlen(programPath)+strlen(fileName)+1;
+		if (resizeBuff(numChars,&pathBuff)) {
+			strcpy(pathBuff,programPath);
+			strcat(pathBuff,fileName);
+			return pathBuff;
+		}														//
+	}																//
+	return NULL;												// NULL means not found.
+}
+				
+			
+
+// Given a standard icon iD this returns the path to that item. Typically not used by the
+// end user. Other methods use it. You can use it if you want. Not like it's going to
+// break anything or wear out.
 const char* lilOS::getStdIconPath(stdIcons theIcon) {
 	
 	filePath	ourPath;
 	char		nameBuff[20];
 	
 	freeStr(&pathBuff);																// Clear out pathBuff.
+	nameBuff[0] = '\0';																// Default the name buff to an empty string.
 	if (ourPath.setPath(stdIconPath)) {											// If we can set the stdIcon path..
 		switch(theIcon) {																// Lets map the icon ID to it's name..
 			case mask22 	: strcpy(nameBuff,"mask22.bmp"); 	break;	// Lots of 'em..
@@ -298,10 +323,10 @@ const char* lilOS::getStdIconPath(stdIcons theIcon) {
 		}																					//
 		if (ourPath.pushChildItemByName(nameBuff)) {							// Move the path to the icon file.
 			heapStr(&pathBuff,ourPath.getPath()); 								// Save it off.
-		}
+		}																					//
 	} else {
 		Serial.println("getStdIconPath() failed ourPath.setPath(stdIconPath)");
-	}																					//
+	}																						//
 	return pathBuff;																	//
 }
 
@@ -345,37 +370,42 @@ bool lilOS::initPaths(void) {
 
 	filePath	ourPath;
 	
-	if (ourPath.setPath(getSystemFolder())) {															// Start with the system folder.
-		if (heapStr(&systemPath,ourPath.getPath())) {												// Save it off.
-			if (ourPath.pushChildItemByName("appFiles")) {											// Move the path to the appFiles folder.
-				if (heapStr(&appPath,ourPath.getPath())) {											// Save it off.
-					ourPath.popItem();																		// Back to system folder.
-					if (ourPath.pushChildItemByName("icons")) {										// Move the path to the icons folder.
-						if (heapStr(&iconPath,ourPath.getPath())) {									// Save it off.
-							ourPath.popItem();																// Back to system folder.
-							if (ourPath.pushChildItemByName("images")) {								// Move the path to the images folder.
-								if (heapStr(&imagePath,ourPath.getPath())) {							// Save it off.
-									if (ourPath.setPath(iconPath)) {										// Back to icons folder.
-										if (ourPath.pushChildItemByName("keyboard")) {				// Move the path to the keyboard folder.
-											if (heapStr(&kbdIconPath,ourPath.getPath())) {			// Save it off.
-												ourPath.popItem();											// Back to icons folder.
-												if (ourPath.pushChildItemByName("standard")) {		// Move the path to the standard folder.
-													if (heapStr(&stdIconPath,ourPath.getPath())) {	// Save it off.
-														return true;											// Call it good!
-													} 																//
-												}																	//
-											}																		//
-										}																			//
-									}																				//
-								}																					//
-							}																						//
-						}																							//
-					}																								//
-				}																									//
-			}																										//
-		}																											//
-	}																												//
-	return false;																								// If we got here, something failed.
+	if (ourPath.setPath(getSystemFolder())) {																	// Start with the system folder.
+		if (heapStr(&systemPath,ourPath.getPath())) {														// Save it off.
+			if (ourPath.pushChildItemByName("program")) {													// Move the path to the program folder.
+				if (heapStr(&programPath,ourPath.getPath())) {												// Save it off.
+					ourPath.popItem();																				// Back to system folder.
+					if (ourPath.pushChildItemByName("appFiles")) {											// Move the path to the appFiles folder.
+						if (heapStr(&appPath,ourPath.getPath())) {											// Save it off.
+							ourPath.popItem();																		// Back to system folder.
+							if (ourPath.pushChildItemByName("icons")) {										// Move the path to the icons folder.
+								if (heapStr(&iconPath,ourPath.getPath())) {									// Save it off.
+									ourPath.popItem();																// Back to system folder.
+									if (ourPath.pushChildItemByName("images")) {								// Move the path to the images folder.
+										if (heapStr(&imagePath,ourPath.getPath())) {							// Save it off.
+											if (ourPath.setPath(iconPath)) {										// Back to icons folder.
+												if (ourPath.pushChildItemByName("keyboard")) {				// Move the path to the keyboard folder.
+													if (heapStr(&kbdIconPath,ourPath.getPath())) {			// Save it off.
+														ourPath.popItem();											// Back to icons folder.
+														if (ourPath.pushChildItemByName("standard")) {		// Move the path to the standard folder.
+															if (heapStr(&stdIconPath,ourPath.getPath())) {	// Save it off.
+																return true;											// Call it good!
+															} 																//
+														}																	//
+													}																		//
+												}																			//
+											}																				//
+										}																					//
+									}																						//
+								}																							//
+							}																								//
+						}																									//
+					}																										//
+				}																											//
+			}																												//
+		}																													//
+	}
+	return false;																										// If we got here, something failed.
 }																
 
 
