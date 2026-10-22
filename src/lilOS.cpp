@@ -197,6 +197,7 @@ lilOS::~lilOS(void) {
 bool lilOS::begin(void) {
 	
 	if (initPaths()) {
+		icon60Mask.readFromBMP(getStdIconPath(mask60));	// Read out and setup the standard 60x60 icon mask.
 		icon32Mask.readFromBMP(getStdIconPath(mask32));	// Read out and setup the standard 32x32 icon mask.
 		icon22Mask.readFromBMP(getStdIconPath(mask22));	// Read out and setup the standard 22x22 icon mask.
 		OSPtr = this;												// Hookup the global pointer to ourselves.
@@ -280,6 +281,7 @@ const char* lilOS::getStdIconPath(stdIcons theIcon) {
 		switch(theIcon) {																// Lets map the icon ID to it's name..
 			case mask22 	: strcpy(nameBuff,"mask22.bmp"); 	break;	// Lots of 'em..
 			case mask32 	: strcpy(nameBuff,"mask32.bmp"); 	break;	//
+			case mask60 	: strcpy(nameBuff,"mask60.bmp"); 	break;	//
 			case app32 		: strcpy(nameBuff,"app32.bmp"); 		break;	//
 			case check22 	: strcpy(nameBuff,"check22.bmp"); 	break;	//
 			case check32 	: strcpy(nameBuff,"check32.bmp"); 	break;	//
