@@ -405,6 +405,7 @@ bool lilOS::initPaths(void) {
 			}																												//
 		}																													//
 	}
+	Serial.println("lilOS::initPaths() fail.");
 	return false;																										// If we got here, something failed.
 }																
 
